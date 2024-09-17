@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Employees with Companies</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Employees and Their Companies</h1>
+    <table id="employeeTable">
+        <thead>
+            <tr>
+                <th>Employee Name</th>
+                <th>Email</th>
+                <th>Company Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be added here dynamically -->
+        </tbody>
+    </table>
+
+    <script>
+        // Define the API endpoints
+        const employeeApi = 'https://utn-lubnan-api-1.herokuapp.com/api/Employee';
+        const companyApi = 'https://utn-lubnan-api-1.herokuapp.com/api/Company';
+
+        // Fetch both employees and companies
+        async function fetchEmployeesAndCompanies() {
+            try {
+                const [employeesResponse, companiesResponse] = await Promise.all([
+                    fetch(employeeApi),
+                    fetch(companyApi)
+                ]);
+
+                const employees = await employeesResponse.json();
+                const companies = await companiesResponse.json();
+
+                // Combine employees with their respective company
+                const combinedData = employees.map(employee => {
+                    const company = companies.find(c => c.companyId === employee.companyId);
+                    return {
+                        employeeName: `${employee.firstName} ${employee.lastName}`,
+                        email: employee.email,
+                        companyName: company ? company.name : 'Unknown'
+                    };
+                });
+
+                // Display the combined data in the table
+                populateTable(combinedData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // Populate table with employee and company data
+        function populateTable(data) {
+            const tableBody = document.getElementById('employeeTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ''; // Clear any existing rows
+
+            data.forEach(row => {
+                const newRow = tableBody.insertRow();
+                const employeeCell = newRow.insertCell(0);
+                const emailCell = newRow.insertCell(1);
+                const companyCell = newRow.insertCell(2);
+
+                employeeCell.textContent = row.employeeName;
+                emailCell.textContent = row.email;
+                companyCell.textContent = row.companyName;
+            });
+        }
+
+        // Call the function to fetch and display data
+        fetchEmployeesAndCompanies();
+    </script>
+</body>
+</html>

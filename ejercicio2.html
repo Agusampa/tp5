@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Employee</title>
+</head>
+<body>
+    <h1>Add a New Employee</h1>
+    
+    <form id="employeeForm">
+        <label for="firstName">First Name:</label><br>
+        <input type="text" id="firstName" name="firstName" required><br><br>
+
+        <label for="lastName">Last Name:</label><br>
+        <input type="text" id="lastName" name="lastName" required><br><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="companyId">Company ID:</label><br>
+        <input type="number" id="companyId" name="companyId" required><br><br>
+
+        <button type="submit">Add Employee</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <script>
+        // Define the API endpoint for adding a new employee
+        const employeeApi = 'https://utn-lubnan-api-1.herokuapp.com/api/Employee';
+
+        // Handle form submission
+        document.getElementById('employeeForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const companyId = document.getElementById('companyId').value;
+
+            // Create the employee object
+            const newEmployee = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                companyId: parseInt(companyId)
+            };
+
+            try {
+                // Send a POST request with the new employee data
+                const response = await fetch(employeeApi, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newEmployee)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('responseMessage').textContent = 'Employee added successfully!';
+                } else {
+                    document.getElementById('responseMessage').textContent = `Error: ${result.message}`;
+                }
+            } catch (error) {
+                console.error('Error adding employee:', error);
+                document.getElementById('responseMessage').textContent = 'Failed to add employee.';
+            }
+        });
+    </script>
+</body>
+</html>
